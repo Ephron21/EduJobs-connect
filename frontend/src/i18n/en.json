@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact",
+    "login": "Login",
+    "dashboard": "Dashboard"
+  },
+  "hero": {
+    "title": "Find Your Future in Rwanda",
+    "subtitle": "Discover university opportunities, scholarships, and job vacancies designed for secondary school graduates",
+    "cta": "Get Started"
+  },
+  "sections": {
+    "universities": "University Applications",
+    "jobs": "Job Vacancies",
+    "consulting": "Consulting Services"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit"
+  }
+}

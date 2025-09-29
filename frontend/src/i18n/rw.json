@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "home": "Ahabanza",
+    "about": "Ibibazo",
+    "services": "Serivisi",
+    "contact": "Twandikire",
+    "login": "Injira",
+    "dashboard": "Ikibaho"
+  },
+  "hero": {
+    "title": "Shakisha Ejo hazaza mu Rwanda",
+    "subtitle": "Menya amahirwe yo muri kaminuza, buruse n'akazi byateguwe abanyeshuri barangije amashuri yisumbuye",
+    "cta": "Tangira"
+  },
+  "sections": {
+    "universities": "Gusaba muri Kaminuza",
+    "jobs": "Akazi",
+    "consulting": "Serivisi z'Ubujyanama"
+  },
+  "auth": {
+    "login": "Injira",
+    "register": "Iyandikishe",
+    "email": "Imeyili",
+    "password": "Ijambo ry'ibanga",
+    "forgotPassword": "Wibagiwe ijambo ry'ibanga?"
+  },
+  "common": {
+    "loading": "Birashakishwa...",
+    "error": "Habaye ikosa",
+    "submit": "Kohereza",
+    "cancel": "Hagarika",
+    "save": "Bika",
+    "delete": "Siba",
+    "edit": "Hindura"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "home": "Ahabanza",
+    "about": "Ibibazo",
+    "services": "Serivisi",
+    "contact": "Twandikire",
+    "login": "Injira",
+    "register": "Iyandikishe",
+    "dashboard": "Ikibaho",
+    "logout": "Sohoka"
+  },
+  "auth": {
+    "login": "Injira",
+    "register": "Iyandikishe",
+    "logout": "Sohoka",
+    "email": "Imeyili",
+    "password": "Ijambo ryibanga",
+    "firstName": "Izina ryambere",
+    "lastName": "Izina ryanyuma",
+    "phoneNumber": "Nimero ya telefoni",
+    "confirmPassword": "Emeza ijambo ryibanga",
+    "forgotPassword": "Wibagiwe ijambo ryibanga?",
+    "resetPassword": "Subiramo ijambo ryibanga",
+    "createAccount": "Kora konti",
+    "signIn": "Injira",
+    "signUp": "Iyandikishe",
+    "alreadyHaveAccount": "Ufite konti?",
+    "dontHaveAccount": "Ntufite konti?",
+    "forgotPasswordSubtitle": "Andika aderesi ya imeyili yawe tuzagutumire link yo gusubiramo ijambo ryibanga.",
+    "sendResetEmail": "Ohereza imeyili yo gusubiramo",
+    "resetPasswordInfo": "Tuzagutumire link yumutekano yo gusubiramo ijambo ryibanga ryawe.",
+    "backToLogin": "Garuka ku injira"
+  },
+  "validation": {
+    "emailRequired": "Imeyili irakenewe",
+    "emailInvalid": "Andika aderesi nyayo ya imeyili"
+  }
+}
