@@ -13,4 +13,19 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      }
+    }
+  },
+  define: {
+    __API_URL__: JSON.stringify(process.env.NODE_ENV === 'production'
+      ? process.env.VITE_API_URL || '/api'
+      : 'http://localhost:5000/api')
+  }
 })

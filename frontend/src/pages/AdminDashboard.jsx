@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import StudentManagement from '../components/admin/StudentManagement'
+import ContactManagement from '../components/admin/ContactManagement'
+import HomepageEditor from '../components/admin/HomepageEditor'
 import { useAuth } from '../contexts/AuthContext'
+import UniversitiesManagement from '../components/admin/UniversitiesManagement'
+// import JobsManagement from '../components/admin/JobsManagement'
+// import ApplicationsManagement from '../components/admin/ApplicationsManagement'
 import { 
   Users, GraduationCap, Briefcase, MessageSquare, Settings, BarChart3, FileText, Shield,
   TrendingUp, TrendingDown, Activity, Database, Mail, HardDrive, Globe, Calendar,
@@ -48,7 +54,7 @@ const AdminDashboard = () => {
   }, [])
 
   useEffect(() => {
-    if (activeTab !== 'overview') {
+    if (activeTab !== 'overview' && activeTab !== 'students') {
       fetchTabData(activeTab)
     }
   }, [activeTab])
@@ -63,7 +69,6 @@ const AdminDashboard = () => {
       setSystemHealth(healthResponse.data.health || {})
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error)
-      // Mock data for development
       setStats(mockStats)
     } finally {
       setLoading(false)
@@ -107,10 +112,14 @@ const AdminDashboard = () => {
           response = await api.get('/admin/homepage')
           setHomepageSettings(response.data.settings || homepageSettings)
           break
+        case 'students':
+          // Students tab is handled by StudentManagement component
+          break
+        default:
+          break
       }
     } catch (error) {
       console.error(`Failed to fetch ${tab} data:`, error)
-      // Load mock data on error
       if (tab === 'users') setUsers(mockUsers)
       if (tab === 'universities') setUniversities(mockUniversities)
       if (tab === 'jobs') setJobs(mockJobs)
@@ -121,9 +130,9 @@ const AdminDashboard = () => {
   }
 
   const mockUsers = [
-    { id: 1, firstName: 'Alice', lastName: 'Williams', email: 'alice@example.com', role: 'Student', status: 'active', createdAt: '2024-01-15' },
-    { id: 2, firstName: 'David', lastName: 'Brown', email: 'david@example.com', role: 'Employer', status: 'active', createdAt: '2024-02-20' },
-    { id: 3, firstName: 'Emma', lastName: 'Davis', email: 'emma@example.com', role: 'Student', status: 'inactive', createdAt: '2024-03-10' }
+    { id: 1, firstName: 'Alice', lastName: 'Williams', email: 'alice@example.com', role: 'student', status: 'active', createdAt: '2024-01-15' },
+    { id: 2, firstName: 'David', lastName: 'Brown', email: 'david@example.com', role: 'employer', status: 'active', createdAt: '2024-02-20' },
+    { id: 3, firstName: 'Emma', lastName: 'Davis', email: 'emma@example.com', role: 'student', status: 'inactive', createdAt: '2024-03-10' }
   ]
 
   const mockUniversities = [
@@ -160,6 +169,7 @@ const AdminDashboard = () => {
       fetchTabData(activeTab)
     } catch (error) {
       console.error('Delete failed:', error)
+      alert('Failed to delete item')
     }
   }
 
@@ -171,6 +181,7 @@ const AdminDashboard = () => {
       fetchTabData(activeTab)
     } catch (error) {
       console.error('Bulk delete failed:', error)
+      alert('Failed to delete items')
     }
   }
 
@@ -195,19 +206,26 @@ const AdminDashboard = () => {
       }
       closeModal()
       fetchTabData(activeTab)
+      alert(`${modalType} ${editingItem ? 'updated' : 'created'} successfully!`)
     } catch (error) {
       console.error('Save failed:', error)
+      alert(`Failed to ${editingItem ? 'update' : 'create'} ${modalType}`)
     }
   }
 
+  // ==================== REUSABLE COMPONENTS ====================
+  
   const StatCard = ({ title, value, icon: Icon, color, change, onClick }) => (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105 ${onClick ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : ''}`} onClick={onClick}>
+    <div 
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105 ${onClick ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : ''}`} 
+      onClick={onClick}
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            {loading ? <div className="w-16 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div> : value}
-          </p>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">
+  {loading ? <div className="w-16 h-8 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div> : value}
+</div>
           {change !== undefined && !loading && (
             <div className="flex items-center mt-2">
               {change > 0 ? <TrendingUp className="h-4 w-4 text-green-500 mr-1" /> : change < 0 ? <TrendingDown className="h-4 w-4 text-red-500 mr-1" /> : null}
@@ -226,11 +244,22 @@ const AdminDashboard = () => {
   )
 
   const TabButton = ({ id, label, icon: Icon, count }) => (
-    <button onClick={() => setActiveTab(id)} className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${activeTab === id ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 shadow-sm' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'}`}>
+    <button 
+      onClick={() => setActiveTab(id)} 
+      className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+        activeTab === id 
+          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 shadow-sm' 
+          : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+      }`}
+    >
       <Icon className="h-4 w-4 mr-2" />
       {label}
       {count !== undefined && (
-        <span className={`ml-2 px-2 py-1 text-xs rounded-full ${activeTab === id ? 'bg-blue-200 text-blue-800 dark:bg-blue-800 dark:text-blue-200' : 'bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300'}`}>
+        <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
+          activeTab === id 
+            ? 'bg-blue-200 text-blue-800 dark:bg-blue-800 dark:text-blue-200' 
+            : 'bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
+        }`}>
           {count}
         </span>
       )}
@@ -238,11 +267,11 @@ const AdminDashboard = () => {
   )
 
   const Modal = ({ children, title, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -253,9 +282,11 @@ const AdminDashboard = () => {
     </div>
   )
 
+  // ==================== TAB COMPONENTS ====================
+
   const OverviewTab = () => {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fadeIn">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">System Overview</h3>
           <div className="flex items-center space-x-2">
@@ -265,7 +296,7 @@ const AdminDashboard = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6">
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-medium text-blue-900 dark:text-blue-100">Database Status</h4>
               <Database className="h-5 w-5 text-blue-600" />
@@ -285,7 +316,7 @@ const AdminDashboard = () => {
             </div>
           </div>
   
-          <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg p-6">
+          <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-medium text-green-900 dark:text-green-100">Email Service</h4>
               <Mail className="h-5 w-5 text-green-600" />
@@ -305,7 +336,7 @@ const AdminDashboard = () => {
             </div>
           </div>
   
-          <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-lg p-6">
+          <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-lg p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-medium text-yellow-900 dark:text-yellow-100">File Storage</h4>
               <HardDrive className="h-5 w-5 text-yellow-600" />
@@ -334,7 +365,7 @@ const AdminDashboard = () => {
             </h4>
             <div className="space-y-3">
               {stats.recentUsers?.slice(0, 5).map((user, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                <div key={i} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer">
                   <div className="flex items-center">
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
                       {user.firstName?.[0] || 'U'}
@@ -368,21 +399,21 @@ const AdminDashboard = () => {
               Quick Stats
             </h4>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer">
                 <div className="flex items-center">
                   <Globe className="h-5 w-5 text-blue-500 mr-3" />
                   <span className="text-sm font-medium text-gray-900 dark:text-white">Active Sessions</span>
                 </div>
                 <span className="text-lg font-bold text-blue-600">24</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors cursor-pointer">
                 <div className="flex items-center">
                   <Calendar className="h-5 w-5 text-green-500 mr-3" />
                   <span className="text-sm font-medium text-gray-900 dark:text-white">Today's Signups</span>
                 </div>
                 <span className="text-lg font-bold text-green-600">8</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors cursor-pointer">
                 <div className="flex items-center">
                   <MessageSquare className="h-5 w-5 text-purple-500 mr-3" />
                   <span className="text-sm font-medium text-gray-900 dark:text-white">Pending Reviews</span>
@@ -403,14 +434,24 @@ const AdminDashboard = () => {
     )
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fadeIn">
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="flex gap-2 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input type="text" placeholder="Search users..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+              <input 
+                type="text" 
+                placeholder="Search users..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              />
             </div>
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+            <select 
+              value={filterStatus} 
+              onChange={(e) => setFilterStatus(e.target.value)} 
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
+            >
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
@@ -419,16 +460,24 @@ const AdminDashboard = () => {
           </div>
           <div className="flex gap-2">
             {selectedItems.length > 0 && (
-              <button onClick={handleBulkDelete} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center">
+              <button 
+                onClick={handleBulkDelete} 
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center"
+              >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete ({selectedItems.length})
               </button>
             )}
-            <button onClick={() => openModal('user')} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+            <button 
+              onClick={() => openModal('user')} 
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add User
             </button>
-            <button onClick={() => {/* Export */}} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center">
+            <button 
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export
             </button>
@@ -441,7 +490,11 @@ const AdminDashboard = () => {
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
                   <th className="px-6 py-3 text-left">
-                    <input type="checkbox" className="rounded" onChange={(e) => setSelectedItems(e.target.checked ? filteredUsers.map(u => u.id) : [])} />
+                    <input 
+                      type="checkbox" 
+                      className="rounded" 
+                      onChange={(e) => setSelectedItems(e.target.checked ? filteredUsers.map(u => u.id) : [])} 
+                    />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
@@ -454,7 +507,12 @@ const AdminDashboard = () => {
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <td className="px-6 py-4">
-                      <input type="checkbox" checked={selectedItems.includes(user.id)} onChange={(e) => setSelectedItems(e.target.checked ? [...selectedItems, user.id] : selectedItems.filter(id => id !== user.id))} className="rounded" />
+                      <input 
+                        type="checkbox" 
+                        checked={selectedItems.includes(user.id)} 
+                        onChange={(e) => setSelectedItems(e.target.checked ? [...selectedItems, user.id] : selectedItems.filter(id => id !== user.id))} 
+                        className="rounded" 
+                      />
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
@@ -468,13 +526,17 @@ const AdminDashboard = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        {user.role || 'Student'}
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 capitalize">
+                        {user.role || 'student'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${user.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
-                        {user.status || 'Active'}
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${
+                        user.status === 'active' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      }`}>
+                        {user.status || 'active'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
@@ -482,13 +544,13 @@ const AdminDashboard = () => {
                     </td>
                     <td className="px-6 py-4 text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
-                        <button className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                        <button className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-colors" title="View">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button onClick={() => openModal('user', user)} className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                        <button onClick={() => openModal('user', user)} className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors" title="Edit">
                           <Edit className="h-4 w-4" />
                         </button>
-                        <button onClick={() => handleDelete(user.id, 'users')} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                        <button onClick={() => handleDelete(user.id, 'users')} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" title="Delete">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
@@ -509,13 +571,22 @@ const AdminDashboard = () => {
     )
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fadeIn">
         <div className="flex justify-between items-center">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input type="text" placeholder="Search universities..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+            <input 
+              type="text" 
+              placeholder="Search universities..." 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+            />
           </div>
-          <button onClick={() => openModal('university')} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+          <button 
+            onClick={() => openModal('university')} 
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add University
           </button>
@@ -523,14 +594,20 @@ const AdminDashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredUniversities.map((uni) => (
-            <div key={uni.id} className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
+            <div key={uni.id} className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-all duration-300 overflow-hidden group">
               <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-500 relative">
                 {uni.logo && <img src={uni.logo} alt={uni.name} className="w-full h-full object-cover" />}
-                <div className="absolute top-2 right-2 flex gap-2">
-                  <button onClick={() => openModal('university', uni)} className="p-2 bg-white rounded-full shadow hover:bg-gray-100 transition-colors">
+                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    onClick={() => openModal('university', uni)} 
+                    className="p-2 bg-white rounded-full shadow hover:bg-gray-100 transition-colors"
+                  >
                     <Edit className="h-3 w-3 text-gray-600" />
                   </button>
-                  <button onClick={() => handleDelete(uni.id, 'universities')} className="p-2 bg-white rounded-full shadow hover:bg-gray-100 transition-colors">
+                  <button 
+                    onClick={() => handleDelete(uni.id, 'universities')} 
+                    className="p-2 bg-white rounded-full shadow hover:bg-gray-100 transition-colors"
+                  >
                     <Trash2 className="h-3 w-3 text-red-600" />
                   </button>
                 </div>
@@ -568,13 +645,22 @@ const AdminDashboard = () => {
     )
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fadeIn">
         <div className="flex justify-between items-center">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input type="text" placeholder="Search jobs..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+            <input 
+              type="text" 
+              placeholder="Search jobs..." 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+            />
           </div>
-          <button onClick={() => openModal('job')} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+          <button 
+            onClick={() => openModal('job')} 
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Post Job
           </button>
@@ -620,8 +706,12 @@ const AdminDashboard = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${job.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'}`}>
-                        {job.status || 'Active'}
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${
+                        job.status === 'active' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                      }`}>
+                        {job.status || 'active'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
@@ -632,13 +722,13 @@ const AdminDashboard = () => {
                     </td>
                     <td className="px-6 py-4 text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
-                        <button className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                        <button className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-colors" title="View">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button onClick={() => openModal('job', job)} className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                        <button onClick={() => openModal('job', job)} className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors" title="Edit">
                           <Edit className="h-4 w-4" />
                         </button>
-                        <button onClick={() => handleDelete(job.id, 'jobs')} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                        <button onClick={() => handleDelete(job.id, 'jobs')} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors" title="Delete">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
@@ -660,14 +750,24 @@ const AdminDashboard = () => {
     )
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fadeIn">
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="flex gap-2 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input type="text" placeholder="Search applications..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+              <input 
+                type="text" 
+                placeholder="Search applications..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              />
             </div>
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+            <select 
+              value={filterStatus} 
+              onChange={(e) => setFilterStatus(e.target.value)} 
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
+            >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
               <option value="reviewing">Reviewing</option>
@@ -705,22 +805,22 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                  <span className={`px-3 py-1 text-xs font-medium rounded-full capitalize ${
                     app.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
                     app.status === 'rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
                     app.status === 'reviewing' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
                     'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                   }`}>
-                    {app.status || 'Pending'}
+                    {app.status || 'pending'}
                   </span>
                   <div className="flex items-center gap-2">
-                    <button className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
+                    <button className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" title="View">
                       <Eye className="h-4 w-4" />
                     </button>
-                    <button className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors">
+                    <button className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors" title="Approve">
                       <CheckCircle className="h-4 w-4" />
                     </button>
-                    <button className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                    <button className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Reject">
                       <XCircle className="h-4 w-4" />
                     </button>
                   </div>
@@ -750,7 +850,7 @@ const AdminDashboard = () => {
     }
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fadeIn">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">Homepage Management</h3>
           <div className="flex gap-2">
@@ -771,7 +871,10 @@ const AdminDashboard = () => {
               <Home className="h-5 w-5 mr-2 text-blue-500" />
               Hero Section
             </h4>
-            <button onClick={() => setEditingSection(editingSection === 'hero' ? null : 'hero')} className="text-blue-600 hover:text-blue-700 dark:text-blue-400">
+            <button 
+              onClick={() => setEditingSection(editingSection === 'hero' ? null : 'hero')} 
+              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 transition-colors"
+            >
               <Edit className="h-4 w-4" />
             </button>
           </div>
@@ -779,16 +882,34 @@ const AdminDashboard = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hero Title</label>
-                <input type="text" value={formData.heroTitle} onChange={(e) => setFormData({...formData, heroTitle: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Enter hero title" />
+                <input 
+                  type="text" 
+                  value={formData.heroTitle} 
+                  onChange={(e) => setFormData({...formData, heroTitle: e.target.value})} 
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+                  placeholder="Enter hero title" 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hero Subtitle</label>
-                <textarea value={formData.heroSubtitle} onChange={(e) => setFormData({...formData, heroSubtitle: e.target.value})} rows="3" className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Enter hero subtitle" />
+                <textarea 
+                  value={formData.heroSubtitle} 
+                  onChange={(e) => setFormData({...formData, heroSubtitle: e.target.value})} 
+                  rows="3" 
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+                  placeholder="Enter hero subtitle" 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hero Image URL</label>
                 <div className="flex gap-2">
-                  <input type="text" value={formData.heroImage} onChange={(e) => setFormData({...formData, heroImage: e.target.value})} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Enter image URL" />
+                  <input 
+                    type="text" 
+                    value={formData.heroImage} 
+                    onChange={(e) => setFormData({...formData, heroImage: e.target.value})} 
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+                    placeholder="Enter image URL" 
+                  />
                   <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center">
                     <Upload className="h-4 w-4 mr-2" />
                     Upload
@@ -815,7 +936,7 @@ const AdminDashboard = () => {
               <Layout className="h-5 w-5 mr-2 text-green-500" />
               Features Section
             </h4>
-            <button className="text-blue-600 hover:text-blue-700 dark:text-blue-400">
+            <button className="text-blue-600 hover:text-blue-700 dark:text-blue-400 transition-colors">
               <Plus className="h-4 w-4" />
             </button>
           </div>
@@ -824,7 +945,7 @@ const AdminDashboard = () => {
               <div key={i} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 transition-colors cursor-pointer">
                 <div className="flex items-center justify-between mb-2">
                   <Star className="h-8 w-8 text-yellow-500" />
-                  <button className="text-gray-400 hover:text-red-600">
+                  <button className="text-gray-400 hover:text-red-600 transition-colors">
                     <X className="h-4 w-4" />
                   </button>
                 </div>
@@ -841,7 +962,7 @@ const AdminDashboard = () => {
               <MessageSquare className="h-5 w-5 mr-2 text-purple-500" />
               Testimonials
             </h4>
-            <button className="text-blue-600 hover:text-blue-700 dark:text-blue-400">
+            <button className="text-blue-600 hover:text-blue-700 dark:text-blue-400 transition-colors">
               <Plus className="h-4 w-4" />
             </button>
           </div>
@@ -860,10 +981,10 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button className="text-green-600 hover:text-green-700">
+                    <button className="text-green-600 hover:text-green-700 transition-colors">
                       <Edit className="h-4 w-4" />
                     </button>
-                    <button className="text-red-600 hover:text-red-700">
+                    <button className="text-red-600 hover:text-red-700 transition-colors">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
@@ -910,8 +1031,18 @@ const AdminDashboard = () => {
       maintenanceMode: false
     })
 
+    const handleSaveSettings = async () => {
+      try {
+        await api.put('/admin/settings', settings)
+        alert('Settings saved successfully!')
+      } catch (error) {
+        console.error('Failed to save settings:', error)
+        alert('Failed to save settings')
+      }
+    }
+
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fadeIn">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h4 className="font-medium text-gray-900 dark:text-white flex items-center mb-6">
             <Settings className="h-5 w-5 mr-2 text-blue-500" />
@@ -920,11 +1051,21 @@ const AdminDashboard = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site Name</label>
-              <input type="text" value={settings.siteName} onChange={(e) => setSettings({...settings, siteName: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+              <input 
+                type="text" 
+                value={settings.siteName} 
+                onChange={(e) => setSettings({...settings, siteName: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site Email</label>
-              <input type="email" value={settings.siteEmail} onChange={(e) => setSettings({...settings, siteEmail: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+              <input 
+                type="email" 
+                value={settings.siteEmail} 
+                onChange={(e) => setSettings({...settings, siteEmail: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              />
             </div>
           </div>
         </div>
@@ -941,7 +1082,12 @@ const AdminDashboard = () => {
                 <p className="text-sm text-gray-600 dark:text-gray-400">Allow new users to register</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" checked={settings.enableRegistration} onChange={(e) => setSettings({...settings, enableRegistration: e.target.checked})} className="sr-only peer" />
+                <input 
+                  type="checkbox" 
+                  checked={settings.enableRegistration} 
+                  onChange={(e) => setSettings({...settings, enableRegistration: e.target.checked})} 
+                  className="sr-only peer" 
+                />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
               </label>
             </div>
@@ -951,7 +1097,12 @@ const AdminDashboard = () => {
                 <p className="text-sm text-yellow-700 dark:text-yellow-300">Put site in maintenance mode</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" checked={settings.maintenanceMode} onChange={(e) => setSettings({...settings, maintenanceMode: e.target.checked})} className="sr-only peer" />
+                <input 
+                  type="checkbox" 
+                  checked={settings.maintenanceMode} 
+                  onChange={(e) => setSettings({...settings, maintenanceMode: e.target.checked})} 
+                  className="sr-only peer" 
+                />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 dark:peer-focus:ring-yellow-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-600"></div>
               </label>
             </div>
@@ -967,11 +1118,16 @@ const AdminDashboard = () => {
             <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-medium text-gray-900 dark:text-white">Email Service API</p>
-                <button className="text-blue-600 hover:text-blue-700 text-sm">Regenerate</button>
+                <button className="text-blue-600 hover:text-blue-700 text-sm transition-colors">Regenerate</button>
               </div>
               <div className="flex items-center gap-2">
-                <input type="password" value="sk_live_xxxxxxxxxxxxx" readOnly className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" />
-                <button className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+                <input 
+                  type="password" 
+                  value="sk_live_xxxxxxxxxxxxx" 
+                  readOnly 
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" 
+                />
+                <button className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                   <Eye className="h-4 w-4" />
                 </button>
               </div>
@@ -979,11 +1135,16 @@ const AdminDashboard = () => {
             <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-medium text-gray-900 dark:text-white">Payment Gateway API</p>
-                <button className="text-blue-600 hover:text-blue-700 text-sm">Regenerate</button>
+                <button className="text-blue-600 hover:text-blue-700 text-sm transition-colors">Regenerate</button>
               </div>
               <div className="flex items-center gap-2">
-                <input type="password" value="pk_test_xxxxxxxxxxxxx" readOnly className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" />
-                <button className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+                <input 
+                  type="password" 
+                  value="pk_test_xxxxxxxxxxxxx" 
+                  readOnly 
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" 
+                />
+                <button className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                   <Eye className="h-4 w-4" />
                 </button>
               </div>
@@ -992,7 +1153,10 @@ const AdminDashboard = () => {
         </div>
 
         <div className="flex justify-end">
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+          <button 
+            onClick={handleSaveSettings}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          >
             <Save className="h-4 w-4 mr-2" />
             Save Settings
           </button>
@@ -1001,9 +1165,11 @@ const AdminDashboard = () => {
     )
   }
 
+  // ==================== MODAL FORMS ====================
+
   const UserFormModal = () => {
     const [formData, setFormData] = useState(editingItem || {
-      firstName: '', lastName: '', email: '', role: 'Student', status: 'active'
+      firstName: '', lastName: '', email: '', role: 'student', status: 'active'
     })
 
     return (
@@ -1012,29 +1178,55 @@ const AdminDashboard = () => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name</label>
-              <input type="text" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required />
+              <input 
+                type="text" 
+                value={formData.firstName} 
+                onChange={(e) => setFormData({...formData, firstName: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+                required 
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
-              <input type="text" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required />
+              <input 
+                type="text" 
+                value={formData.lastName} 
+                onChange={(e) => setFormData({...formData, lastName: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+                required 
+              />
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-            <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required />
+            <input 
+              type="email" 
+              value={formData.email} 
+              onChange={(e) => setFormData({...formData, email: e.target.value})} 
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              required 
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Role</label>
-              <select value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
-                <option value="Student">Student</option>
-                <option value="Employer">Employer</option>
-                <option value="Admin">Admin</option>
+              <select 
+                value={formData.role} 
+                onChange={(e) => setFormData({...formData, role: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
+              >
+                <option value="student">Student</option>
+                <option value="employer">Employer</option>
+                <option value="admin">Admin</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-              <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+              <select 
+                value={formData.status} 
+                onChange={(e) => setFormData({...formData, status: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
+              >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
                 <option value="suspended">Suspended</option>
@@ -1042,10 +1234,17 @@ const AdminDashboard = () => {
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-4">
-            <button type="button" onClick={closeModal} className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <button 
+              type="button" 
+              onClick={closeModal} 
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button 
+              type="submit" 
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
               {editingItem ? 'Update' : 'Create'} User
             </button>
           </div>
@@ -1064,37 +1263,79 @@ const AdminDashboard = () => {
         <form onSubmit={(e) => { e.preventDefault(); handleSaveItem(formData); }} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">University Name</label>
-            <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required />
+            <input 
+              type="text" 
+              value={formData.name} 
+              onChange={(e) => setFormData({...formData, name: e.target.value})} 
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              required 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location</label>
-            <input type="text" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required />
+            <input 
+              type="text" 
+              value={formData.location} 
+              onChange={(e) => setFormData({...formData, location: e.target.value})} 
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              required 
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Number of Programs</label>
-              <input type="number" value={formData.programs} onChange={(e) => setFormData({...formData, programs: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required />
+              <input 
+                type="number" 
+                value={formData.programs} 
+                onChange={(e) => setFormData({...formData, programs: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+                required 
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rating</label>
-              <input type="number" step="0.1" min="0" max="5" value={formData.rating} onChange={(e) => setFormData({...formData, rating: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required />
+              <input 
+                type="number" 
+                step="0.1" 
+                min="0" 
+                max="5" 
+                value={formData.rating} 
+                onChange={(e) => setFormData({...formData, rating: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+                required 
+              />
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Logo URL</label>
             <div className="flex gap-2">
-              <input type="text" value={formData.logo} onChange={(e) => setFormData({...formData, logo: e.target.value})} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
-              <button type="button" className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center">
+              <input 
+                type="text" 
+                value={formData.logo} 
+                onChange={(e) => setFormData({...formData, logo: e.target.value})} 
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              />
+              <button 
+                type="button" 
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center"
+              >
                 <Upload className="h-4 w-4 mr-2" />
                 Upload
               </button>
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-4">
-            <button type="button" onClick={closeModal} className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <button 
+              type="button" 
+              onClick={closeModal} 
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button 
+              type="submit" 
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
               {editingItem ? 'Update' : 'Create'} University
             </button>
           </div>
@@ -1105,7 +1346,7 @@ const AdminDashboard = () => {
 
   const JobFormModal = () => {
     const [formData, setFormData] = useState(editingItem || {
-      title: '', company: '', location: '', salary: '', type: 'Full-time', status: 'active'
+      title: '', company: '', location: '', salary: '', type: 'Full-time', status: 'active', description: ''
     })
 
     return (
@@ -1113,26 +1354,54 @@ const AdminDashboard = () => {
         <form onSubmit={(e) => { e.preventDefault(); handleSaveItem(formData); }} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Job Title</label>
-            <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required />
+            <input 
+              type="text" 
+              value={formData.title} 
+              onChange={(e) => setFormData({...formData, title: e.target.value})} 
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              required 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Company</label>
-            <input type="text" value={formData.company} onChange={(e) => setFormData({...formData, company: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required />
+            <input 
+              type="text" 
+              value={formData.company} 
+              onChange={(e) => setFormData({...formData, company: e.target.value})} 
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              required 
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location</label>
-              <input type="text" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required />
+              <input 
+                type="text" 
+                value={formData.location} 
+                onChange={(e) => setFormData({...formData, location: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+                required 
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Salary Range</label>
-              <input type="text" value={formData.salary} onChange={(e) => setFormData({...formData, salary: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="e.g., $50k-70k" />
+              <input 
+                type="text" 
+                value={formData.salary} 
+                onChange={(e) => setFormData({...formData, salary: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+                placeholder="e.g., $50k-70k" 
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Job Type</label>
-              <select value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+              <select 
+                value={formData.type} 
+                onChange={(e) => setFormData({...formData, type: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
+              >
                 <option value="Full-time">Full-time</option>
                 <option value="Part-time">Part-time</option>
                 <option value="Contract">Contract</option>
@@ -1141,7 +1410,11 @@ const AdminDashboard = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-              <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+              <select 
+                value={formData.status} 
+                onChange={(e) => setFormData({...formData, status: e.target.value})} 
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
+              >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
@@ -1149,13 +1422,26 @@ const AdminDashboard = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Job Description</label>
-            <textarea rows="4" className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Enter job description..." />
+            <textarea 
+              rows="4" 
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all" 
+              placeholder="Enter job description..." 
+            />
           </div>
           <div className="flex justify-end gap-2 pt-4">
-            <button type="button" onClick={closeModal} className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <button 
+              type="button" 
+              onClick={closeModal} 
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button 
+              type="submit" 
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
               {editingItem ? 'Update' : 'Post'} Job
             </button>
           </div>
@@ -1164,9 +1450,12 @@ const AdminDashboard = () => {
     )
   }
 
+  // ==================== MAIN RENDER ====================
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
@@ -1174,7 +1463,11 @@ const AdminDashboard = () => {
               <p className="text-gray-600 dark:text-gray-300 mt-2">Manage your platform from one place</p>
             </div>
             <div className="flex items-center space-x-4">
-              <button onClick={handleRefresh} disabled={refreshing} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+              <button 
+                onClick={handleRefresh} 
+                disabled={refreshing} 
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+              >
                 <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
               </button>
               <button className="relative p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
@@ -1190,36 +1483,78 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <StatCard title="Total Users" value={stats.users} icon={Users} color="bg-blue-500" change={stats.growth?.users} onClick={() => setActiveTab('users')} />
-          <StatCard title="Universities" value={stats.universities} icon={GraduationCap} color="bg-green-500" change={stats.growth?.universities} onClick={() => setActiveTab('universities')} />
-          <StatCard title="Active Jobs" value={stats.jobs} icon={Briefcase} color="bg-purple-500" change={stats.growth?.jobs} onClick={() => setActiveTab('jobs')} />
-          <StatCard title="Applications" value={stats.applications} icon={FileText} color="bg-orange-500" change={stats.growth?.applications} onClick={() => setActiveTab('applications')} />
-          <StatCard title="Consultations" value={stats.consultations} icon={MessageSquare} color="bg-pink-500" />
+          <StatCard 
+            title="Total Users" 
+            value={stats.users} 
+            icon={Users} 
+            color="bg-blue-500" 
+            change={stats.growth?.users} 
+            onClick={() => setActiveTab('users')} 
+          />
+          <StatCard 
+            title="Universities" 
+            value={stats.universities} 
+            icon={GraduationCap} 
+            color="bg-green-500" 
+            change={stats.growth?.universities} 
+            onClick={() => setActiveTab('universities')} 
+          />
+          <StatCard 
+            title="Active Jobs" 
+            value={stats.jobs} 
+            icon={Briefcase} 
+            color="bg-purple-500" 
+            change={stats.growth?.jobs} 
+            onClick={() => setActiveTab('jobs')} 
+          />
+          <StatCard 
+            title="Applications" 
+            value={stats.applications} 
+            icon={FileText} 
+            color="bg-orange-500" 
+            change={stats.growth?.applications} 
+            onClick={() => setActiveTab('applications')} 
+          />
+          <StatCard 
+            title="Consultations" 
+            value={stats.consultations} 
+            icon={MessageSquare} 
+            color="bg-pink-500" 
+          />
         </div>
 
+        {/* Tabs */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6 p-2">
           <div className="flex flex-wrap gap-2">
-            <TabButton id="overview" label="Overview" icon={BarChart3} />
-            <TabButton id="users" label="Users" icon={Users} count={stats.users} />
-            <TabButton id="universities" label="Universities" icon={GraduationCap} count={stats.universities} />
-            <TabButton id="jobs" label="Jobs" icon={Briefcase} count={stats.jobs} />
-            <TabButton id="applications" label="Applications" icon={FileText} count={stats.applications} />
-            <TabButton id="homepage" label="Homepage" icon={Home} />
-            <TabButton id="settings" label="Settings" icon={Settings} />
+          <TabButton id="overview" label="Overview" icon={BarChart3} />
+<TabButton id="students" label="Students" icon={Users} count={stats.users} />
+<TabButton id="users" label="Users" icon={User} count={stats.users} />
+<TabButton id="universities" label="Universities" icon={GraduationCap} count={stats.universities} />
+<TabButton id="jobs" label="Jobs" icon={Briefcase} count={stats.jobs} />
+<TabButton id="applications" label="Applications" icon={FileText} count={stats.applications} />
+<TabButton id="contacts" label="Messages" icon={Mail} count={stats.contacts || 0} />
+<TabButton id="homepage" label="Homepage" icon={Home} />
+<TabButton id="settings" label="Settings" icon={Settings} />
+           
           </div>
         </div>
 
+        {/* Tab Content */}
         <div>
-          {activeTab === 'overview' && <OverviewTab />}
-          {activeTab === 'users' && <UsersTab />}
-          {activeTab === 'universities' && <UniversitiesTab />}
-          {activeTab === 'jobs' && <JobsTab />}
-          {activeTab === 'applications' && <ApplicationsTab />}
-          {activeTab === 'homepage' && <HomepageTab />}
-          {activeTab === 'settings' && <SettingsTab />}
+        {activeTab === 'overview' && <OverviewTab />}
+{activeTab === 'students' && <StudentManagement />}
+{activeTab === 'contacts' && <ContactManagement />}
+{activeTab === 'users' && <UsersTab />}
+{activeTab === 'universities' && <UniversitiesManagement />}
+{activeTab === 'jobs' && <JobsTab />}
+{activeTab === 'applications' && <ApplicationsTab />}
+{activeTab === 'homepage' && <HomepageEditor />}
+{activeTab === 'settings' && <SettingsTab />}
         </div>
 
+        {/* Modals */}
         {showModal && modalType === 'user' && <UserFormModal />}
         {showModal && modalType === 'university' && <UniversityFormModal />}
         {showModal && modalType === 'job' && <JobFormModal />}

@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "Ahabanza",
-    "about": "Ibibazo",
+    "about": "Ibyerekeye",
     "services": "Serivisi",
     "contact": "Twandikire",
     "login": "Injira",
@@ -13,26 +13,140 @@
     "login": "Injira",
     "register": "Iyandikishe",
     "logout": "Sohoka",
-    "email": "Imeyili",
-    "password": "Ijambo ryibanga",
+    "email": "Imeri",
+    "password": "Ijambo ry'ibanga",
     "firstName": "Izina ryambere",
-    "lastName": "Izina ryanyuma",
-    "phoneNumber": "Nimero ya telefoni",
-    "confirmPassword": "Emeza ijambo ryibanga",
-    "forgotPassword": "Wibagiwe ijambo ryibanga?",
-    "resetPassword": "Subiramo ijambo ryibanga",
-    "createAccount": "Kora konti",
+    "lastName": "Izina rya nyuma",
+    "phoneNumber": "Numero ya telefone",
+    "confirmPassword": "Emeza ijambo ry'ibanga",
+    "forgotPassword": "Wibagiwe ijambo ry'ibanga?",
+    "resetPassword": "Hindura ijambo ry'ibanga",
+    "createAccount": "Fungura konti",
     "signIn": "Injira",
     "signUp": "Iyandikishe",
-    "alreadyHaveAccount": "Ufite konti?",
-    "dontHaveAccount": "Ntufite konti?",
-    "forgotPasswordSubtitle": "Andika aderesi ya imeyili yawe tuzagutumire link yo gusubiramo ijambo ryibanga.",
-    "sendResetEmail": "Ohereza imeyili yo gusubiramo",
-    "resetPasswordInfo": "Tuzagutumire link yumutekano yo gusubiramo ijambo ryibanga ryawe.",
-    "backToLogin": "Garuka ku injira"
+    "alreadyHaveAccount": "Usanzwe ufite konti?",
+    "dontHaveAccount": "Nta konti ufite?",
+    "joinEduJobs": "Injira mu bihumbi by'abanyeshuri babona amahirwe yabo",
+    "welcomeBack": "Murakaza neza! Injira muri konti yawe",
+    "emailPlaceholder": "Andika imeri yawe",
+    "passwordPlaceholder": "Andika ijambo ry'ibanga ryawe",
+    "firstNamePlaceholder": "Andika izina ryawe ryambere",
+    "lastNamePlaceholder": "Andika izina ryawe rya nyuma",
+    "confirmPasswordPlaceholder": "Emeza ijambo ry'ibanga ryawe"
   },
   "validation": {
-    "emailRequired": "Imeyili irakenewe",
-    "emailInvalid": "Andika aderesi nyayo ya imeyili"
+    "emailRequired": "Imeri irasabwa",
+    "emailInvalid": "Andika imeri memewe",
+    "passwordRequired": "Ijambo ry'ibanga rirasabwa",
+    "passwordTooShort": "Ijambo ry'ibanga rigomba kuba nibura inyuguti 6",
+    "confirmPasswordRequired": "Emeza ijambo ry'ibanga ryawe",
+    "passwordsDoNotMatch": "Amajambo y'ibanga ntabwo ahura",
+    "firstNameRequired": "Izina ryambere rirasabwa",
+    "firstNameTooShort": "Izina ryambere rigomba kuba nibura inyuguti 2",
+    "lastNameRequired": "Izina rya nyuma rirasabwa",
+    "lastNameTooShort": "Izina rya nyuma rigomba kuba nibura inyuguti 2",
+    "phoneRequired": "Numero ya telefone irasabwa",
+    "phoneInvalid": "Andika numero ya telefone memewe ya Rwanda"
+  },
+  "common": {
+    "loading": "Gitegereje...",
+    "error": "Ikosa",
+    "success": "Byagenze neza",
+    "cancel": "Hagarika",
+    "save": "Bika",
+    "edit": "Hindura",
+    "delete": "Siba",
+    "view": "Reba",
+    "search": "Shaka",
+    "filter": "Cagura",
+    "sort": "Tondeka",
+    "next": "Ibikurikira",
+    "previous": "Ibyabanje",
+    "submit": "Ohereza",
+    "close": "Funga",
+    "yes": "Yego",
+    "no": "Oya",
+    "readMore": "Soma byinshi",
+    "applyNow": "Saba ubu",
+    "learnMore": "Menya byinshi",
+    "getStarted": "Tangira",
+    "contactUs": "Twandikire",
+    "signUp": "Iyandikishe",
+    "signIn": "Injira",
+    "logout": "Sohoka",
+    "profile": "Umwirondoro",
+    "settings": "Igenamiterere",
+    "help": "Ubufasha",
+    "support": "Inkunga"
+  },
+  "home": {
+    "hero": {
+      "title": "Shaka inzira yawe y'intsinzi",
+      "subtitle": "Huza n'amashuri makuru kandi ubone amahirwe y'akazi mu Rwanda no hanze",
+      "cta": "Tangira ubu"
+    },
+    "stats": {
+      "universities": "Amashuri makuru",
+      "jobs": "Amahirwe y'akazi",
+      "students": "Abanyeshuri bafashijwe",
+      "successRate": "Igipimo cy'intsinzi"
+    },
+    "features": {
+      "title": "Kuki hitamo EduJobs Connect?",
+      "subtitle": "Ibyo ukeneye byose kugirango utsinde urugendo rwawe rw'amashuri n'akazi"
+    },
+    "services": {
+      "title": "Serivisi zacu",
+      "universities": {
+        "title": "Amashuri makuru",
+        "description": "Shaka amashuri makuru n'ibigo by'amasomo"
+      },
+      "jobs": {
+        "title": "Akazi",
+        "description": "Shaka amahirwe y'akazi yawe y'ibyishimo"
+      },
+      "consulting": {
+        "title": "Inama",
+        "description": "Bona inama z'abahanga n'inkunga"
+      }
+    },
+    "testimonials": {
+      "title": "Ibyabayeho by'intsinzi",
+      "subtitle": "Tega amatwi abanyeshuri n'abakozi bacu batsinze"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "Ibyerekeye EduJobs Connect",
+      "subtitle": "Gufasha abanyeshuri n'abakozi ba Rwanda kugera ku nzozi zabo"
+    },
+    "mission": {
+      "title": "Igenamigambi ryacu",
+      "description": "Guhuza hagati y'amashuri n'amahirwe y'akazi mu Rwanda"
+    },
+    "vision": {
+      "title": "Icyerekezo cyacu",
+      "description": "Ejo hazaza aho buri Munyarwanda afite amahirwe y'amashuri meza n'akazi keza"
+    }
+  },
+  "services": {
+    "hero": {
+      "title": "Serivisi zacu",
+      "subtitle": "Ibisubizo bihambaye ku byo ukeneye mu mashuri n'akazi"
+    }
+  },
+  "contact": {
+    "hero": {
+      "title": "Twandikire",
+      "subtitle": "Turi hano kugufasha gutsinda"
+    }
+  },
+  "dashboard": {
+    "welcome": "Murakaza neza",
+    "overview": "Igaragaza ry'ikibaho"
+  },
+  "admin": {
+    "title": "Ikibaho cy'ubuyobozi",
+    "overview": "Igaragaza ry'urubuga"
   }
 }

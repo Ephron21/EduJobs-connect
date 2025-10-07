@@ -1,87 +1,246 @@
-import mongoose from 'mongoose'
-
-const programSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Program name is required'],
-    trim: true
-  },
-  degree: {
-    type: String,
-    required: [true, 'Degree type is required'],
-    enum: ['Certificate', 'Diploma', 'Bachelor', 'Master', 'PhD']
-  },
-  duration: {
-    type: String,
-    required: [true, 'Program duration is required']
-  },
-  requirements: [{
-    type: String,
-    trim: true
-  }]
-})
+const mongoose = require('mongoose')
 
 const universitySchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'University name is required'],
-    trim: true,
-    unique: true
-  },
-  type: {
-    type: String,
-    required: [true, 'University type is required'],
-    enum: ['local', 'international']
-  },
-  location: {
-    type: String,
-    required: [true, 'Location is required'],
+    required: true,
     trim: true
   },
-  country: {
+  shortName: {
     type: String,
-    required: [true, 'Country is required'],
     trim: true
   },
   description: {
     type: String,
-    required: [true, 'Description is required'],
-    maxlength: [2000, 'Description cannot be more than 2000 characters']
+    required: true
   },
   website: {
     type: String,
-    match: [
-      /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
-      'Please provide a valid website URL'
-    ]
+    trim: true
+  },
+  email: {
+    type: String,
+    trim: true
+  },
+  phone: {
+    type: String,
+    trim: true
   },
   logo: {
-    type: String,
-    default: null
+    type: String
   },
-  programs: [programSchema],
-  isActive: {
+  location: {
+    address: String,
+    city: {
+      type: String,
+      required: true
+    },
+    province: String,
+    country: {
+      type: String,
+      default: 'Rwanda'
+    }
+  },
+  programs: [{
+    name: {
+      type: String,
+      required: true
+    },
+    degree: {
+      type: String,
+      enum: ['certificate', 'diploma', 'bachelor', 'master', 'phd'],
+      required: true
+    },
+    duration: {
+      years: Number,
+      months: Number
+    },
+    description: String,
+    requirements: [String],
+    tuitionFee: {
+      amount: Number,
+      currency: { type: String, default: 'RWF' }
+    }
+  }],
+  admissions: {
+    applicationDeadline: Date,
+    startDate: Date,
+    requirements: {
+      documents: [String],
+      minimumAge: Number,
+      languageRequirements: [String]
+    },
+    applicationFee: {
+      amount: Number,
+      currency: { type: String, default: 'RWF' }
+    },
+    scholarships: [{
+      name: String,
+      description: String,
+      eligibility: [String],
+      coverage: String,
+      deadline: Date,
+      amount: {
+        type: Number,
+        default: 0
+      },
+      currency: {
+        type: String,
+        default: 'RWF'
+      },
+      type: {
+        type: String,
+        enum: ['full', 'partial', 'merit-based', 'need-based'],
+        default: 'partial'
+      },
+      requirements: [String],
+      applicationProcess: String,
+      contactInfo: {
+        email: String,
+        phone: String,
+        website: String
+      },
+      isActive: {
+        type: Boolean,
+        default: true
+      }
+    }],
+    financialAid: [{
+      name: String,
+      description: String,
+      type: {
+        type: String,
+        enum: ['loan', 'grant', 'work-study', 'installment'],
+        required: true
+      },
+      amount: {
+        min: Number,
+        max: Number,
+        currency: { type: String, default: 'RWF' }
+      },
+      interestRate: Number,
+      paymentTerms: String,
+      eligibility: [String],
+      deadline: Date,
+      provider: String,
+      contactInfo: {
+        email: String,
+        phone: String,
+        website: String
+      },
+      isActive: {
+        type: Boolean,
+        default: true
+      }
+    }],
+    paymentOptions: [{
+      type: {
+        type: String,
+        enum: ['self-paid', 'installment', 'scholarship', 'loan', 'sponsor'],
+        required: true
+      },
+      description: String,
+      requirements: [String],
+      deadline: Date,
+      isActive: {
+        type: Boolean,
+        default: true
+      }
+    }]
+  },
+  announcements: [{
+    title: {
+      type: String,
+      required: true
+    },
+    content: {
+      type: String,
+      required: true
+    },
+    type: {
+      type: String,
+      enum: ['general', 'admission', 'scholarship', 'event', 'deadline', 'emergency'],
+      default: 'general'
+    },
+    priority: {
+      type: String,
+      enum: ['low', 'medium', 'high', 'urgent'],
+      default: 'medium'
+    },
+    deadline: Date,
+    attachments: [{
+      filename: String,
+      originalName: String,
+      path: String,
+      mimetype: String,
+      size: Number,
+      uploadedAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
+    targetAudience: {
+      type: String,
+      enum: ['all', 'students', 'applicants', 'staff'],
+      default: 'all'
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    publishedAt: {
+      type: Date,
+      default: Date.now
+    },
+    expiresAt: Date
+  }],
+  rating: {
+    overall: {
+      type: Number,
+      min: 0,
+      max: 5,
+      default: 0
+    },
+    academics: Number,
+    facilities: Number,
+    studentLife: Number,
+    employability: Number
+  },
+  statistics: {
+    totalStudents: {
+      type: Number,
+      default: 0
+    },
+    graduationRate: {
+      type: Number,
+      default: 0
+    },
+    employmentRate: {
+      type: Number,
+      default: 0
+    }
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'pending'],
+    default: 'active'
+  },
+  featured: {
     type: Boolean,
-    default: true
+    default: false
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, {
   timestamps: true
 })
 
-// Indexes for better query performance
-universitySchema.index({ name: 1 })
-universitySchema.index({ type: 1 })
-universitySchema.index({ country: 1 })
-universitySchema.index({ isActive: 1 })
+// Indexes for better performance
+universitySchema.index({ name: 'text', description: 'text' })
+universitySchema.index({ 'location.city': 1 })
+universitySchema.index({ status: 1 })
+universitySchema.index({ featured: 1 })
 
-// Virtual for program count
-universitySchema.virtual('programCount').get(function() {
-  return this.programs.length
-})
-
-// Ensure virtual fields are serialized
-universitySchema.set('toJSON', {
-  virtuals: true
-})
-
-export default mongoose.model('University', universitySchema)
+module.exports = mongoose.model('University', universitySchema)

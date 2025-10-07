@@ -1,3 +1,5 @@
+import EduJobsLogo from '../components/common/EduJobsLogo'
+import EduJobsIcon from '../components/common/EduJobsIcon'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
@@ -205,6 +207,8 @@ const Dashboard = () => {
           </div>
 
           {/* Enhanced Sidebar */}
+        
+          <EduJobsIcon size="small" />
           <div className="space-y-6">
             {/* Smart Profile Progress */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">

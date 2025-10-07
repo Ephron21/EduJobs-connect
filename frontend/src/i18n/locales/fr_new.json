@@ -1,0 +1,293 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos",
+    "services": "Services",
+    "contact": "Contact",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "dashboard": "Tableau de bord",
+    "logout": "Déconnexion"
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "logout": "Déconnexion",
+    "email": "Email",
+    "password": "Mot de passe",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "phoneNumber": "Numéro de téléphone",
+    "confirmPassword": "Confirmer le mot de passe",
+    "forgotPassword": "Mot de passe oublié?",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "createAccount": "Créer un compte",
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "alreadyHaveAccount": "Vous avez déjà un compte?",
+    "dontHaveAccount": "Vous n'avez pas de compte?",
+    "joinEduJobs": "Rejoignez des milliers d'étudiants trouvant leurs opportunités de rêve",
+    "welcomeBack": "Bienvenue! Veuillez vous connecter à votre compte",
+    "emailPlaceholder": "Entrez votre adresse email",
+    "passwordPlaceholder": "Entrez votre mot de passe",
+    "firstNamePlaceholder": "Entrez votre prénom",
+    "lastNamePlaceholder": "Entrez votre nom",
+    "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "confirmNewPassword": "Confirmer le nouveau mot de passe",
+    "newPasswordPlaceholder": "Entrez votre nouveau mot de passe",
+    "confirmNewPasswordPlaceholder": "Confirmez votre nouveau mot de passe",
+    "creatingAccount": "Création du compte...",
+    "signingIn": "Connexion en cours...",
+    "sendingResetEmail": "Envoi de l'email de réinitialisation...",
+    "resettingPassword": "Réinitialisation du mot de passe...",
+    "verifyingEmail": "Vérification de l'email...",
+    "registrationSuccess": "Inscription réussie! Veuillez vérifier votre email pour confirmer votre compte.",
+    "registrationFailed": "Échec de l'inscription. Veuillez réessayer.",
+    "loginFailed": "Échec de la connexion. Veuillez vérifier vos identifiants.",
+    "forgotPasswordSubtitle": "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+    "resetPasswordSubtitle": "Entrez votre nouveau mot de passe ci-dessous.",
+    "forgotPasswordFailed": "Échec de l'envoi de l'email de réinitialisation. Veuillez réessayer.",
+    "resetPasswordFailed": "Échec de la réinitialisation du mot de passe. Veuillez réessayer.",
+    "emailSent": "Email envoyé!",
+    "resetEmailSentMessage": "Nous avons envoyé un lien de réinitialisation à {email}",
+    "checkEmailInstructions": "Veuillez vérifier votre email et cliquer sur le lien pour réinitialiser votre mot de passe.",
+    "resetLinkExpiry": "Le lien de réinitialisation expirera dans 10 minutes.",
+    "sendAnotherEmail": "Envoyer un autre email",
+    "backToLogin": "Retour à la connexion",
+    "sendResetEmail": "Envoyer l'email de réinitialisation",
+    "resetPasswordInfo": "Nous vous enverrons un lien sécurisé pour réinitialiser votre mot de passe.",
+    "passwordResetSuccess": "Réinitialisation réussie!",
+    "passwordResetSuccessMessage": "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+    "proceedToLogin": "Procéder à la connexion",
+    "updatePassword": "Mettre à jour le mot de passe",
+    "passwordRequirements": "Exigences du mot de passe:",
+    "passwordMinLength": "Au moins 6 caractères",
+    "passwordRecommendation": "Utilisez un mélange de lettres, chiffres et symboles pour une meilleure sécurité",
+    "verifyYourEmail": "Vérifiez votre email",
+    "verificationEmailSentTo": "Nous avons envoyé un email de vérification à {email}",
+    "verificationInstructions": "Pour compléter votre inscription:",
+    "checkEmailInbox": "Vérifiez votre boîte de réception",
+    "checkSpamFolder": "Vérifiez votre dossier spam/courrier indésirable si vous ne le voyez pas",
+    "clickVerificationLink": "Cliquez sur le lien de vérification dans l'email",
+    "emailVerificationFailed": "Échec de la vérification de l'email. Veuillez réessayer.",
+    "emailRequiredForResend": "L'adresse email est requise pour renvoyer la vérification.",
+    "verificationEmailResent": "L'email de vérification a été renvoyé!",
+    "resendVerificationFailed": "Échec du renvoi de l'email de vérification.",
+    "resendVerificationEmail": "Renvoyer l'email de vérification",
+    "resendingEmail": "Renvoi de l'email...",
+    "haveVerificationCode": "Vous avez un code de vérification?",
+    "enterCodeManually": "Entrer le code manuellement",
+    "emailVerified": "Email vérifié!",
+    "emailVerificationSuccess": "Votre email a été vérifié avec succès. Bienvenue sur EduJobs Connect!",
+    "redirectingToDashboard": "Redirection vers le tableau de bord...",
+    "goToDashboard": "Aller au tableau de bord"
+  },
+  "validation": {
+    "emailRequired": "L'email est requis",
+    "emailInvalid": "Veuillez entrer une adresse email valide",
+    "passwordRequired": "Le mot de passe est requis",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+    "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
+    "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+    "firstNameRequired": "Le prénom est requis",
+    "firstNameTooShort": "Le prénom doit contenir au moins 2 caractères",
+    "lastNameRequired": "Le nom est requis",
+    "lastNameTooShort": "Le nom doit contenir au moins 2 caractères",
+    "phoneRequired": "Le numéro de téléphone est requis",
+    "phoneInvalid": "Veuillez entrer un numéro de téléphone rwandais valide (par ex., +250 788 123 456)"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "view": "Voir",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "readMore": "Lire la suite",
+    "applyNow": "Postuler maintenant",
+    "learnMore": "En savoir plus",
+    "getStarted": "Commencer",
+    "contactUs": "Nous contacter",
+    "signUp": "S'inscrire",
+    "signIn": "Se connecter",
+    "logout": "Déconnexion",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "help": "Aide",
+    "support": "Support",
+    "selectRole": "Sélectionner votre rôle",
+    "enterCredentials": "Entrer vos identifiants",
+    "rememberMe": "Se souvenir de moi",
+    "testAccounts": "Comptes de test",
+    "student": "Étudiant",
+    "employer": "Employeur",
+    "admin": "Administrateur"
+  },
+  "home": {
+    "hero": {
+      "title": "Trouvez votre chemin vers le succès",
+      "subtitle": "Connectez-vous avec les meilleures universités et découvrez des opportunités d'emploi exceptionnelles au Rwanda et au-delà",
+      "cta": "Commencer aujourd'hui"
+    },
+    "stats": {
+      "universities": "Universités",
+      "jobs": "Opportunités d'emploi",
+      "students": "Étudiants aidés",
+      "successRate": "Taux de réussite"
+    },
+    "features": {
+      "title": "Pourquoi choisir EduJobs Connect?",
+      "subtitle": "Tout ce dont vous avez besoin pour réussir votre parcours éducatif et professionnel"
+    },
+    "services": {
+      "title": "Nos services",
+      "universities": {
+        "title": "Universités",
+        "description": "Explorez les meilleures universités et programmes"
+      },
+      "jobs": {
+        "title": "Emplois",
+        "description": "Trouvez vos opportunités d'emploi de rêve"
+      },
+      "consulting": {
+        "title": "Conseil",
+        "description": "Obtenez des conseils d'experts et un soutien"
+      }
+    },
+    "testimonials": {
+      "title": "Témoignages de réussite",
+      "subtitle": "Écoutez nos étudiants et professionnels qui ont réussi"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "À propos d'EduJobs Connect",
+      "subtitle": "Autonomiser les étudiants et professionnels rwandais pour réaliser leurs rêves"
+    },
+    "mission": {
+      "title": "Notre mission",
+      "description": "Combler le fossé entre l'éducation et les opportunités d'emploi au Rwanda"
+    },
+    "vision": {
+      "title": "Notre vision",
+      "description": "Un avenir où chaque Rwandais a accès à une éducation de qualité et à des opportunités de carrière enrichissantes"
+    },
+    "values": {
+      "title": "Nos valeurs",
+      "excellence": "L'excellence dans tout ce que nous faisons",
+      "innovation": "Des solutions innovantes pour les défis modernes",
+      "integrity": "Des partenariats honnêtes et transparents",
+      "inclusion": "Des opportunités égales pour tous"
+    }
+  },
+  "services": {
+    "hero": {
+      "title": "Nos services",
+      "subtitle": "Des solutions complètes pour vos besoins éducatifs et professionnels"
+    },
+    "university": {
+      "title": "Services universitaires",
+      "description": "Trouvez et postulez aux meilleures universités",
+      "features": [
+        "Recherche et comparaison d'universités",
+        "Assistance à la candidature",
+        "Opportunités de bourses",
+        "Informations sur le campus"
+      ]
+    },
+    "jobs": {
+      "title": "Services d'emploi",
+      "description": "Découvrez des opportunités de carrière exceptionnelles",
+      "features": [
+        "Recherche et filtrage d'emplois",
+        "Suivi des candidatures",
+        "Conseils de carrière",
+        "Préparation aux entretiens"
+      ]
+    },
+    "consulting": {
+      "title": "Services de conseil",
+      "description": "Conseils d'experts pour votre parcours",
+      "features": [
+        "Conseil personnalisé",
+        "Planification de carrière",
+        "Développement des compétences",
+        "Programmes de mentorat"
+      ]
+    }
+  },
+  "contact": {
+    "hero": {
+      "title": "Entrer en contact",
+      "subtitle": "Nous sommes là pour vous aider à réussir"
+    },
+    "info": {
+      "title": "Informations de contact",
+      "phone": "Téléphone",
+      "email": "Email",
+      "address": "Adresse",
+      "hours": "Heures d'ouverture"
+    },
+    "form": {
+      "title": "Envoyez-nous un message",
+      "name": "Nom complet",
+      "subject": "Sujet",
+      "message": "Message",
+      "send": "Envoyer le message",
+      "sending": "Envoi en cours..."
+    }
+  },
+  "dashboard": {
+    "welcome": "Bienvenue",
+    "overview": "Aperçu du tableau de bord",
+    "stats": {
+      "applications": "Candidatures",
+      "interviews": "Entretiens",
+      "offers": "Offres",
+      "saved": "Éléments sauvegardés"
+    },
+    "recent": {
+      "title": "Activité récente",
+      "applications": "Candidatures récentes",
+      "jobs": "Emplois récents",
+      "universities": "Universités récentes"
+    },
+    "quick": {
+      "title": "Actions rapides",
+      "apply": "Postuler à l'université",
+      "job": "Rechercher des emplois",
+      "profile": "Mettre à jour le profil",
+      "messages": "Voir les messages"
+    }
+  },
+  "admin": {
+    "title": "Tableau de bord administrateur",
+    "overview": "Aperçu de la plateforme",
+    "management": {
+      "users": "Gestion des utilisateurs",
+      "universities": "Gestion des universités",
+      "jobs": "Gestion des emplois",
+      "applications": "Gestion des candidatures",
+      "analytics": "Analyses",
+      "settings": "Paramètres"
+    },
+    "stats": {
+      "totalUsers": "Total des utilisateurs",
+      "totalUniversities": "Total des universités",
+      "totalJobs": "Total des emplois",
+      "totalApplications": "Total des candidatures"
+    }
+  }
+}

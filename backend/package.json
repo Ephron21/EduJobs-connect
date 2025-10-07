@@ -3,45 +3,37 @@
   "version": "1.0.0",
   "description": "Backend API for EduJobs Connect platform",
   "main": "server.js",
-  "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "setup": "node create-directories.js",
-    "seed": "node scripts/seedData.js",
-    "seed:fresh": "npm run seed",
-    "create-admin": "node scripts/createAdmin.js",
-    "fix-database": "node scripts/fixDatabase.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "start": "node server.js",
+  "dev": "nodemon server.js",
+  "seed": "node scripts/seed.js",
+  "test": "jest"
+},
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.4",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.10.0",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.6.4"
   },
   "keywords": [
     "education",
     "jobs",
-    "university",
-    "students",
     "rwanda",
     "api",
-    "nodejs",
-    "express",
-    "mongodb"
+    "express"
   ],
   "author": "EduJobs Connect Team",
-  "license": "MIT",
-  "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.5.0",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "cors": "^2.8.5",
-    "helmet": "^7.0.0",
-    "compression": "^1.7.4",
-    "express-rate-limit": "^6.10.0",
-    "nodemailer": "^6.9.4",
-    "multer": "^1.4.5-lts.1",
-    "dotenv": "^16.3.1",
-    "crypto": "^1.0.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  }
+  "license": "MIT"
 }
