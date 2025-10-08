@@ -25,7 +25,7 @@ export default defineConfig({
   },
   define: {
     __API_URL__: JSON.stringify(process.env.NODE_ENV === 'production'
-      ? process.env.VITE_API_URL || '/api'
+      ? process.env.VITE_API_URL || 'https://your-backend-url.railway.app/api'
       : 'http://localhost:5000/api')
   }
 })
