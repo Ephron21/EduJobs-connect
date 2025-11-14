@@ -34,10 +34,15 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Set token in API headers
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}` 
       
       // Verify token and get user data
       const response = await api.get('/auth/me')
+      
+      if (!response.data?.user) {
+        throw new Error('Invalid user data received')
+      }
+
       setUser(response.data.user)
       setIsAuthenticated(true)
     } catch (error) {
@@ -47,6 +52,12 @@ export const AuthProvider = ({ children }) => {
       delete api.defaults.headers.common['Authorization']
       setUser(null)
       setIsAuthenticated(false)
+      
+      // Set specific error message
+      setError(
+        error.response?.data?.message || 
+        'Session expired. Please login again.'
+      )
     } finally {
       setLoading(false)
     }
@@ -57,11 +68,16 @@ export const AuthProvider = ({ children }) => {
       setError(null)
       const response = await api.post('/auth/register', userData)
       
-      // Don't auto-login after registration, user needs to verify email first
+      if (!response.data) {
+        throw new Error('No response data received')
+      }
+
       return response.data
     } catch (error) {
       console.error('Registration failed:', error)
-      const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.'
+      const errorMessage = error.response?.data?.message || 
+                         error.response?.data?.error || 
+                         'Registration failed. Please try again.'
       setError(errorMessage)
       throw error
     }
@@ -71,22 +87,28 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null)
       const response = await api.post('/auth/login', { email, password })
-      const { token, user: userData } = response.data
+      
+      if (response.status !== 200) {
+        throw new Error(response.data?.message || 'Login failed')
+      }
 
-      // Store token
-      localStorage.setItem('token', token)
+      // Store token and user data
+      localStorage.setItem('token', response.data.token)
+      localStorage.setItem('user', JSON.stringify(response.data.user))
       
       // Set token in API headers
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
       
       // Update state
-      setUser(userData)
+      setUser(response.data.user)
       setIsAuthenticated(true)
 
       return response.data
     } catch (error) {
       console.error('Login failed:', error)
-      const errorMessage = error.response?.data?.message || 'Login failed. Please check your credentials.'
+      const errorMessage = error.response?.data?.message || 
+                         error.response?.data?.error || 
+                         'Login failed. Please check your credentials.'
       setError(errorMessage)
       throw error
     }
@@ -94,23 +116,32 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Call logout endpoint to invalidate token on server
-      await api.post('/auth/logout')
+      // Only call logout endpoint if authenticated
+      if (isAuthenticated) {
+        await api.post('/auth/logout')
+      }
     } catch (error) {
-      console.error('Logout request failed:', error)
-      // Continue with local logout even if server request fails
+      console.error('Logout error:', error)
+      // Continue with logout even if API call fails
     } finally {
-      // Clear local storage and state
+      // Always clear auth state
       localStorage.removeItem('token')
+      localStorage.removeItem('user')
       delete api.defaults.headers.common['Authorization']
       setUser(null)
       setIsAuthenticated(false)
-      setError(null)
     }
   }
 
   const updateUser = (userData) => {
-    setUser(prev => ({ ...prev, ...userData }))
+    // Update local state
+    const updatedUser = { ...user, ...userData }
+    setUser(updatedUser)
+    
+    // Update localStorage
+    localStorage.setItem('user', JSON.stringify(updatedUser))
+    
+    return updatedUser
   }
 
   const forgotPassword = async (email) => {
@@ -120,7 +151,8 @@ export const AuthProvider = ({ children }) => {
       return response.data
     } catch (error) {
       console.error('Forgot password failed:', error)
-      const errorMessage = error.response?.data?.message || 'Failed to send reset email. Please try again.'
+      const errorMessage = error.response?.data?.message || 
+                         'Failed to send reset email. Please try again.'
       setError(errorMessage)
       throw error
     }
@@ -130,10 +162,21 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null)
       const response = await api.post('/auth/reset-password', { token, password })
+      
+      if (response.data.token) {
+        // Auto-login after password reset
+        localStorage.setItem('token', response.data.token)
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}` 
+        setUser(response.data.user)
+        setIsAuthenticated(true)
+      }
+      
       return response.data
     } catch (error) {
       console.error('Reset password failed:', error)
-      const errorMessage = error.response?.data?.message || 'Failed to reset password. Please try again.'
+      const errorMessage = error.response?.data?.message || 
+                         'Failed to reset password. Please try again.'
       setError(errorMessage)
       throw error
     }
@@ -147,7 +190,8 @@ export const AuthProvider = ({ children }) => {
       if (response.data.token) {
         // Auto-login after email verification
         localStorage.setItem('token', response.data.token)
-        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}` 
         setUser(response.data.user)
         setIsAuthenticated(true)
       }
@@ -155,7 +199,8 @@ export const AuthProvider = ({ children }) => {
       return response.data
     } catch (error) {
       console.error('Email verification failed:', error)
-      const errorMessage = error.response?.data?.message || 'Email verification failed. Please try again.'
+      const errorMessage = error.response?.data?.message || 
+                         'Email verification failed. Please try again.'
       setError(errorMessage)
       throw error
     }
@@ -168,7 +213,8 @@ export const AuthProvider = ({ children }) => {
       return response.data
     } catch (error) {
       console.error('Resend verification failed:', error)
-      const errorMessage = error.response?.data?.message || 'Failed to resend verification email. Please try again.'
+      const errorMessage = error.response?.data?.message || 
+                         'Failed to resend verification email. Please try again.'
       setError(errorMessage)
       throw error
     }
@@ -184,7 +230,8 @@ export const AuthProvider = ({ children }) => {
       return response.data
     } catch (error) {
       console.error('Change password failed:', error)
-      const errorMessage = error.response?.data?.message || 'Failed to change password. Please try again.'
+      const errorMessage = error.response?.data?.message || 
+                         'Failed to change password. Please try again.'
       setError(errorMessage)
       throw error
     }
@@ -210,7 +257,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   )
 }

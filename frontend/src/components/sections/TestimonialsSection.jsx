@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Star, Quote } from 'lucide-react'
-import axios from 'axios'
+import api from '../../services/api'
 
 const TestimonialsSection = () => {
   const [testimonials, setTestimonials] = useState([])
@@ -12,8 +12,8 @@ const TestimonialsSection = () => {
 
   const fetchTestimonials = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/homepage/content')
-      const enabledTestimonials = response.data.settings.testimonials?.filter(t => t.enabled) || []
+      const response = await api.get('/homepage/content')
+      const enabledTestimonials = response.data.settings?.testimonials?.filter(t => t.enabled) || []
       setTestimonials(enabledTestimonials)
     } catch (error) {
       console.error('Failed to fetch testimonials:', error)

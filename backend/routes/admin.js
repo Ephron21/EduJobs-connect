@@ -703,17 +703,27 @@ router.put('/homepage', async (req, res) => {
     const HomepageSettings = require('../models/HomepageSettings')
     const updates = req.body
 
+    console.log('Updating homepage settings:', updates)
+
     let settings = await HomepageSettings.findOne({ isActive: true })
 
     if (!settings) {
+      updates.lastUpdatedBy = req.user._id
+      updates.isActive = true
       settings = new HomepageSettings(updates)
     } else {
-      Object.assign(settings, updates)
+      // Update fields explicitly
+      if (updates.hero) settings.hero = updates.hero
+      if (updates.stats) settings.stats = updates.stats
+      if (updates.features) settings.features = updates.features
+      if (updates.testimonials) settings.testimonials = updates.testimonials
+      if (updates.about) settings.about = updates.about
+      if (updates.cta) settings.cta = updates.cta
+      if (updates.seo) settings.seo = updates.seo
+      settings.lastUpdatedBy = req.user._id
     }
 
-    settings.lastUpdatedBy = req.user._id
     await settings.save()
-
     await settings.populate('lastUpdatedBy', 'firstName lastName email')
 
     res.json({
@@ -723,9 +733,11 @@ router.put('/homepage', async (req, res) => {
 
   } catch (error) {
     console.error('Admin update homepage error:', error)
+    console.error('Error details:', error.message)
     res.status(500).json({
       error: 'Failed to update homepage settings',
-      message: 'An error occurred while updating homepage settings'
+      message: error.message || 'An error occurred while updating homepage settings',
+      details: error.errors || {}
     })
   }
 })
@@ -754,6 +766,104 @@ router.get('/public/homepage', async (req, res) => {
     res.status(500).json({
       error: 'Failed to fetch homepage settings',
       message: 'An error occurred while fetching homepage settings'
+    })
+  }
+})
+
+// @route   GET /api/admin/messages
+// @desc    Get all contact messages
+// @access  Private (Admin only)
+router.get('/messages', async (req, res) => {
+  try {
+    const Contact = require('../models/Contact')
+    const { page = 1, limit = 20, status } = req.query
+
+    const query = {}
+    if (status && status !== 'all') {
+      query.status = status
+    }
+
+    const messages = await Contact.find(query)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit))
+
+    const total = await Contact.countDocuments(query)
+
+    res.json({
+      messages,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: parseInt(page)
+    })
+
+  } catch (error) {
+    console.error('Get messages error:', error)
+    res.status(500).json({
+      error: 'Server error',
+      message: 'Failed to fetch messages'
+    })
+  }
+})
+
+// @route   PUT /api/admin/messages/:id
+// @desc    Update message status
+// @access  Private (Admin only)
+router.put('/messages/:id', async (req, res) => {
+  try {
+    const Contact = require('../models/Contact')
+    const { status, reply } = req.body
+
+    const message = await Contact.findByIdAndUpdate(
+      req.params.id,
+      { status, reply, updatedAt: Date.now() },
+      { new: true }
+    )
+
+    if (!message) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Message not found'
+      })
+    }
+
+    res.json({
+      message: 'Message updated successfully',
+      data: message
+    })
+
+  } catch (error) {
+    console.error('Update message error:', error)
+    res.status(500).json({
+      error: 'Server error',
+      message: 'Failed to update message'
+    })
+  }
+})
+
+// @route   DELETE /api/admin/messages/:id
+// @desc    Delete message
+// @access  Private (Admin only)
+router.delete('/messages/:id', async (req, res) => {
+  try {
+    const Contact = require('../models/Contact')
+    
+    const message = await Contact.findByIdAndDelete(req.params.id)
+
+    if (!message) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Message not found'
+      })
+    }
+
+    res.json({ message: 'Message deleted successfully' })
+
+  } catch (error) {
+    console.error('Delete message error:', error)
+    res.status(500).json({
+      error: 'Server error',
+      message: 'Failed to delete message'
     })
   }
 })

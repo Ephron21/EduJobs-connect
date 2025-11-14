@@ -1,16 +1,39 @@
+// server.js
+const express = require('express')
+const mongoose = require('mongoose')
+const cors = require('cors')
+const helmet = require('helmet')
+const compression = require('compression')
+const rateLimit = require('express-rate-limit')
+const path = require('path')
+require('dotenv').config()
+
+const app = express()
+
 /* ---------------------------
    ✅ CORS configuration
 ---------------------------- */
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
 /* ---------------------------
    ✅ Security Middleware
 ---------------------------- */
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'blob:'],
+      connectSrc: ["'self'", process.env.FRONTEND_URL || 'http://localhost:3001']
+    }
+  }
 }))
 app.use(compression())
 
@@ -35,39 +58,64 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 /* ---------------------------
    ✅ Static File Serving
 ---------------------------- */
-app.use('/uploads', express.static('uploads'))
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 /* ---------------------------
    ✅ Database Connection
 ---------------------------- */
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/edujobs-connect')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/edujobs-connect', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000
+})
   .then(() => console.log('✅ Connected to MongoDB'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err))
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err)
+    process.exit(1)
+  })
 
 /* ---------------------------
-   ✅ Routes
+   Routes
 ---------------------------- */
-// Routes - Individual error handling
-const routes = [
-  { path: '/api/auth', file: './routes/auth' },
-  { path: '/api/users', file: './routes/users' },
-  { path: '/api/universities', file: './routes/universities' },
-  { path: '/api/homepage', file: './routes/homepage' },
-  { path: '/api/contact', file: './routes/contact' },
-  { path: '/api/services', file: './routes/services' },
-  { path: '/api/jobs', file: './routes/jobs' },
-  { path: '/api/applications', file: './routes/applications' },
-  { path: '/api/admin', file: './routes/admin' },
-  { path: '/api/admin/content', file: './routes/adminContent' },
-  { path: '/api/notifications', file: './routes/notifications' }
-]
+// Import routes
+const authRoutes = require('./routes/auth')
+const usersRoutes = require('./routes/users')
+const universitiesRoutes = require('./routes/universities')
+const homepageRoutes = require('./routes/homepage')
+const jobsRoutes = require('./routes/jobs')
+const adminRoutes = require('./routes/admin')
+const contactRoutes = require('./routes/contact')
 
-routes.forEach(({ path, file }) => {
+// Mount routes with error handling
+const mountRoute = (path, router) => {
   try {
-    app.use(path, require(file))
+    app.use(path, router)
+    console.log(`✅ Route mounted: ${path}`)
   } catch (err) {
-    console.error(`❌ Failed to load route ${path}:`, err.message)
+    console.error(`❌ Failed to mount route ${path}:`, err)
   }
+}
+
+mountRoute('/api/auth', authRoutes)
+mountRoute('/api/users', usersRoutes)
+mountRoute('/api/universities', universitiesRoutes)
+mountRoute('/api/homepage', homepageRoutes)
+mountRoute('/api/jobs', jobsRoutes)
+mountRoute('/api/admin', adminRoutes)
+mountRoute('/api/contact', contactRoutes)
+
+/* ---------------------------
+   Health Check
+---------------------------- */
+app.get('/api/health', (req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  res.json({
+    status: 'OK',
+    dbStatus,
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  })
 })
 
 /* ---------------------------
@@ -84,13 +132,7 @@ app.get('/', (req, res) => {
       users: '/api/users',
       universities: '/api/universities',
       homepage: '/api/homepage',
-      contact: '/api/contact',
-      services: '/api/services',
-      jobs: '/api/jobs',
-      applications: '/api/applications',
-      admin: '/api/admin',
-      adminContent: '/api/admin/content',
-      notifications: '/api/notifications'
+      jobs: '/api/jobs'
     }
   })
 })
@@ -108,13 +150,7 @@ app.use('*', (req, res) => {
       '/api/users',
       '/api/universities',
       '/api/homepage',
-      '/api/contact',
-      '/api/services',
-      '/api/jobs',
-      '/api/applications',
-      '/api/admin',
-      '/api/admin/content',
-      '/api/notifications'
+      '/api/jobs'
     ]
   })
 })
@@ -123,7 +159,23 @@ app.use('*', (req, res) => {
    ✅ Global Error Handler
 ---------------------------- */
 app.use((err, req, res, next) => {
-  console.error('🔥 Error:', err.stack)
+  console.error('🔥 Error:', {
+    message: err.message,
+    stack: err.stack,
+    url: req.originalUrl,
+    method: req.method,
+    body: req.body
+  })
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+
+  const errorResponse = {
+    error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    errorResponse.stack = err.stack
+  }
 
   if (err.name === 'ValidationError') {
     return res.status(400).json({
@@ -147,18 +199,27 @@ app.use((err, req, res, next) => {
     })
   }
 
-  res.status(err.status || 500).json({
-    error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
-    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
-  })
+  res.status(err.status || 500).json(errorResponse)
 })
 
 /* ---------------------------
    ✅ Start Server
 ---------------------------- */
 const PORT = process.env.PORT || 5000
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`)
-  console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`)
+  console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3001'}`)
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
+})
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error('🔥 Unhandled Rejection:', err)
+  server.close(() => process.exit(1))
+})
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('🔥 Uncaught Exception:', err)
+  server.close(() => process.exit(1))
 })

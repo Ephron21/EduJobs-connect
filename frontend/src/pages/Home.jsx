@@ -12,6 +12,7 @@ import HeroSection from '../components/sections/HeroSection'
 import FeaturesSection from '../components/sections/FeaturesSection'
 import TestimonialsSection from '../components/sections/TestimonialsSection'
 import AIChatbot from '../components/common/AIChatbot'
+import api from '../services/api'
 
 const Home = () => {
   const [stats, setStats] = useState({
@@ -30,9 +31,9 @@ const Home = () => {
 
   const fetchFeaturedUniversities = async () => {
     try {
-      const response = await fetch('/api/universities?featured=true&limit=3')
-      if (response.ok) {
-        const data = await response.json()
+      const response = await api.get('/universities?featured=true&limit=3')
+      if (response.data) {
+        const data = response.data
         const transformedUniversities = data.universities.map(uni => ({
           id: uni._id,
           name: uni.name,

@@ -340,7 +340,7 @@ const Register = () => {
             {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Password *
+                Password * <span className="text-xs text-gray-500">(minimum 6 characters)</span>
               </label>
               <div className="relative">
                 <input
@@ -432,9 +432,6 @@ const Register = () => {
               </>
             )}
           </button>
-          <div className="text-center mb-8">
-  <EduJobsLogo size="default" animated={false} />
-</div>
 
           {/* Login Link */}
           <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">

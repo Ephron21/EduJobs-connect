@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import CountdownTimer, { HeroCountdown, CountdownGrid } from '../components/common/CountdownTimer'
 import AIChatbot from '../components/common/AIChatbot'
+import api from '../services/api'
 
 const EnhancedHome = () => {
   const [homepageData, setHomepageData] = useState(null)
@@ -25,9 +26,9 @@ const EnhancedHome = () => {
   useEffect(() => {
     const fetchHomepageContent = async () => {
       try {
-        const response = await fetch('/api/homepage/content')
-        if (response.ok) {
-          const data = await response.json()
+        const response = await api.get('/homepage/content')
+        if (response.data) {
+          const data = response.data
           setHomepageData(data)
           
           // Update stats with real data

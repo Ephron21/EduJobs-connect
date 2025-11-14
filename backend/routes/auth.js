@@ -3,7 +3,12 @@ const { body, validationResult } = require('express-validator')
 const bcrypt = require('bcryptjs')
 const crypto = require('crypto')
 const User = require('../models/User')
-const { generateToken, generateRefreshToken, verifyRefreshToken, authenticate } = require('../middleware/auth')
+const { 
+  generateToken, 
+  generateRefreshToken, 
+  verifyRefreshToken, 
+  authenticate 
+} = require('../middleware/auth')
 
 const router = express.Router()
 
@@ -23,9 +28,7 @@ const validateRegister = [
     .withMessage('Please provide a valid email address'),
   body('password')
     .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
+    .withMessage('Password must be at least 6 characters long'),
   body('role')
     .optional()
     .isIn(['student', 'employer'])
@@ -151,7 +154,8 @@ router.post('/login', validateLogin, handleValidationErrors, async (req, res) =>
     console.log('🔐 Login attempt for:', email)
 
     // Find user and include password for comparison
-    const user = await User.findByEmail(email).select('+password')
+    const user = await User.findByEmail(email)
+      .select('+password +loginAttempts +lockUntil')
     
     if (!user) {
       console.log('❌ User not found:', email)
@@ -162,18 +166,18 @@ router.post('/login', validateLogin, handleValidationErrors, async (req, res) =>
     }
 
     console.log('✅ User found:', email, 'Role:', user.role, 'Status:', user.status)
-    console.log('🔒 Password hash exists:', !!user.password)
 
-    // Check if account is locked
+    // Check account lock status
     if (user.isLocked) {
-      console.log('🔒 Account is locked:', email)
+      const remainingLockTime = Math.ceil((user.lockUntil - Date.now()) / (60 * 1000))
+      console.log('🔒 Account locked:', email, 'Remaining time:', remainingLockTime)
       return res.status(423).json({
         error: 'Account locked',
-        message: 'Account is temporarily locked due to multiple failed login attempts'
+        message: `Account locked. Try again in ${remainingLockTime} minutes`
       })
     }
 
-    // Check if account is active
+    // Check account status
     if (user.status !== 'active') {
       console.log('⚠️ Account not active:', email, 'Status:', user.status)
       return res.status(401).json({
@@ -183,24 +187,24 @@ router.post('/login', validateLogin, handleValidationErrors, async (req, res) =>
     }
 
     // Compare password
-    console.log('🔍 Comparing password for:', email)
     const isPasswordValid = await user.comparePassword(password)
-    console.log('🔑 Password valid:', isPasswordValid)
     
     if (!isPasswordValid) {
       console.log('❌ Invalid password for:', email)
-      // Increment login attempts
       await user.incLoginAttempts()
+      const attemptsLeft = 5 - (user.loginAttempts + 1)
       
       return res.status(401).json({
         error: 'Login failed',
-        message: 'Invalid email or password'
+        message: attemptsLeft > 0 
+          ? `Invalid email or password. ${attemptsLeft} attempts left`
+          : 'Account locked due to multiple failed attempts'
       })
     }
 
     console.log('✅ Login successful for:', email)
     
-    // Reset login attempts on successful login
+    // Reset attempts on successful login
     if (user.loginAttempts > 0) {
       await user.resetLoginAttempts()
     }
@@ -234,14 +238,20 @@ router.post('/login', validateLogin, handleValidationErrors, async (req, res) =>
       refreshToken
     })
 
-  } catch (error) {
-    console.error('❌ Login error:', error)
+   } catch (error) {
+    console.error('❌ Login error details:', {
+      error: error.message,
+      stack: error.stack,
+      requestBody: req.body
+    })
     res.status(500).json({
       error: 'Login failed',
-      message: 'An error occurred during login'
+      message: error.message || 'An error occurred during login',
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     })
   }
 })
+
 // @route   POST /api/auth/refresh
 // @desc    Refresh access token
 // @access  Public
@@ -459,5 +469,5 @@ router.post('/logout', authenticate, (req, res) => {
     message: 'Logged out successfully'
   })
 })
-
-module.exports = router
+// At the end of auth.js
+module.exports = router;

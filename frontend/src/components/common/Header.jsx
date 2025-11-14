@@ -66,18 +66,41 @@ const Header = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await api.get('/notifications')
-      setNotifications(response.data.notifications || [])
-      setUnreadCount(response.data.unreadCount || 0)
+      // Use mock data instead of making an API call
+      const mockNotifications = [
+        { 
+          id: 1, 
+          title: 'Welcome to EduJobs Connect', 
+          message: 'Thank you for joining our platform. Start exploring opportunities now!', 
+          time: 'Just now', 
+          read: false,
+          type: 'info'
+        },
+        { 
+          id: 2, 
+          title: 'Complete Your Profile', 
+          message: 'Your profile is 70% complete. Complete it to increase your chances!', 
+          time: '5 min ago', 
+          read: false,
+          type: 'reminder'
+        },
+        { 
+          id: 3, 
+          title: 'New Opportunities Available', 
+          message: '5 new jobs matching your profile have been posted.', 
+          time: '1 hour ago', 
+          read: true,
+          type: 'opportunity'
+        }
+      ]
+      
+      setNotifications(mockNotifications)
+      setUnreadCount(mockNotifications.filter(n => !n.read).length)
     } catch (error) {
-      console.error('Failed to fetch notifications:', error)
-      // Mock notifications for development
-      setNotifications([
-        { id: 1, title: 'New Application', message: 'You have a new job application', time: '5 min ago', read: false },
-        { id: 2, title: 'System Update', message: 'System maintenance scheduled', time: '1 hour ago', read: false },
-        { id: 3, title: 'Welcome!', message: 'Welcome to EduJobs Connect', time: '2 hours ago', read: true }
-      ])
-      setUnreadCount(2)
+      console.error('Error loading notifications:', error)
+      // Set empty notifications if there's an error
+      setNotifications([])
+      setUnreadCount(0)
     }
   }
 
@@ -337,9 +360,23 @@ const Header = () => {
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
                   >
-                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
-                      {getInitials(user?.firstName, user?.lastName)}
-                    </div>
+                    {user?.profile?.avatar ? (
+                      <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 shadow-md">
+                        <img 
+                          src={`${import.meta.env.VITE_API_URL}/uploads/avatars/${user.profile.avatar}`} 
+                          alt={`${user.firstName} ${user.lastName}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName + ' ' + user.lastName)}&background=random`;
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
+                        {getInitials(user?.firstName, user?.lastName)}
+                      </div>
+                    )}
                     <div className="hidden xl:block text-left">
                       <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.firstName} {user?.lastName}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
@@ -350,12 +387,31 @@ const Header = () => {
                   {isUserMenuOpen && (
                     <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                       {/* User Info */}
-                      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.firstName} {user?.lastName}</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{user?.email}</p>
-                        <span className={`inline-block mt-2 px-2 py-0.5 text-xs font-medium rounded-full ${getRoleBadgeColor(user?.role)}`}>
-                          {user?.role?.toUpperCase()}
-                        </span>
+                      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center space-x-3">
+                        {user?.profile?.avatar ? (
+                          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 shadow-md">
+                            <img 
+                              src={`${import.meta.env.VITE_API_URL}/uploads/avatars/${user.profile.avatar}`} 
+                              alt={`${user.firstName} ${user.lastName}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName + ' ' + user.lastName)}&background=random`;
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md">
+                            {getInitials(user?.firstName, user?.lastName)}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">{user?.firstName} {user?.lastName}</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{user?.email}</p>
+                          <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full ${getRoleBadgeColor(user?.role)}`}>
+                            {user?.role?.toUpperCase()}
+                          </span>
+                        </div>
                       </div>
 
                       {/* Menu Items */}

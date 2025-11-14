@@ -287,7 +287,7 @@ const Login = () => {
           </div>
         </form>
 
-        {/* Quick Login Hints */}
+        {/* Quick Login Hints - CORRECTED ADMIN EMAIL */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
           <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-2 flex items-center">
             <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -306,7 +306,7 @@ const Login = () => {
             </div>
             <div className="bg-white dark:bg-gray-800 p-2 rounded-lg">
               <p className="font-medium text-red-700 dark:text-red-300">Admin</p>
-              <p className="text-gray-600 dark:text-gray-400">ephrontuyishime21@gmail.com</p>
+              <p className="text-gray-600 dark:text-gray-400">admin@edujobsconnect.rw</p>
             </div>
           </div>
         </div>

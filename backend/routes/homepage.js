@@ -48,13 +48,14 @@ router.get('/content', async (req, res) => {
     const settings = await HomepageSettings.findOne({ isActive: true })
     
     // Get featured universities with scholarships and deadlines
-    const featuredUniversities = await University.find({ 
-      featured: true, 
-      status: 'active' 
-    })
-    .select('name shortName logo rating location admissions programs announcements')
-    .limit(6)
-    .lean()
+   const featuredUniversities = await University.find({ 
+  featured: true, 
+  status: 'active' 
+})
+.select('name shortName logo rating location admissions programs announcements')
+.sort({ createdAt: -1 })  // Newest first
+.limit(8)                 // Increased from 6 to 8
+.lean()
 
     // Process universities to add countdown timers
     const universitiesWithCountdowns = featuredUniversities.map(university => {

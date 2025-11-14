@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs')
 const User = require('../models/User')
 const University = require('../models/University')
 const Job = require('../models/Job')
+const HomepageSettings = require('../models/HomepageSettings')
+const Service = require('../models/Service')
 require('dotenv').config()
 
 const seedData = async () => {
@@ -10,14 +12,16 @@ const seedData = async () => {
     console.log('🌱 Starting database seeding...')
     
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/edujobs-connect')
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/edujobs-connect')
     console.log('✅ Connected to MongoDB')
 
     // Clear existing data
     await Promise.all([
       User.deleteMany({}),
       University.deleteMany({}),
-      Job.deleteMany({})
+      Job.deleteMany({}),
+      HomepageSettings.deleteMany({}),
+      Service.deleteMany({})
     ])
     console.log('🗑️  Cleared existing data')
 
@@ -345,11 +349,164 @@ const seedData = async () => {
     const createdJobs = await Job.insertMany(jobs)
     console.log('💼 Created sample jobs')
 
+    // Create homepage settings
+    const homepageSettings = new HomepageSettings({
+      hero: {
+        title: 'Your Gateway to Education and Career Success',
+        subtitle: 'Connect with top universities and job opportunities in Rwanda',
+        ctaText: 'Get Started',
+        ctaLink: '/login'
+      },
+      stats: {
+        universities: { number: '50+', label: 'Universities' },
+        jobs: { number: '200+', label: 'Job Opportunities' },
+        students: { number: '1000+', label: 'Students Helped' }
+      },
+      features: [
+        {
+          title: 'University Applications',
+          description: 'Find and apply to universities across Rwanda',
+          icon: 'graduation-cap',
+          enabled: true
+        },
+        {
+          title: 'Job Opportunities',
+          description: 'Discover career opportunities that match your skills',
+          icon: 'briefcase',
+          enabled: true
+        },
+        {
+          title: 'Career Guidance',
+          description: 'Get expert advice on your career path',
+          icon: 'users',
+          enabled: true
+        }
+      ],
+      testimonials: [
+        {
+          name: 'Jean Baptiste',
+          role: 'Computer Science Student',
+          content: 'EduJobs Connect helped me find the perfect university program and secure a scholarship!',
+          rating: 5,
+          enabled: true
+        },
+        {
+          name: 'Marie Claire',
+          role: 'Software Developer',
+          content: 'I landed my dream job through this platform. The career guidance was invaluable!',
+          rating: 5,
+          enabled: true
+        },
+        {
+          name: 'Patrick Nkusi',
+          role: 'Business Student',
+          content: 'Amazing platform! Made my university application process so much easier.',
+          rating: 5,
+          enabled: true
+        }
+      ],
+      isActive: true
+    })
+    await homepageSettings.save()
+    console.log('🏠 Created homepage settings')
+
+    // Create consulting services
+    const services = [
+      {
+        title: 'Career Counseling',
+        slug: 'career-counseling',
+        shortDescription: 'Personalized career guidance and planning sessions',
+        description: 'Get professional career counseling to help you make informed decisions about your future. Our expert counselors will work with you to identify your strengths, interests, and career goals.',
+        icon: 'target',
+        category: 'career',
+        features: [
+          { title: 'Career Assessment', description: 'Comprehensive evaluation of your skills and interests', included: true },
+          { title: 'Goal Setting', description: 'Define clear and achievable career objectives', included: true },
+          { title: 'Action Plan', description: 'Detailed roadmap to reach your career goals', included: true }
+        ],
+        pricing: {
+          type: 'free',
+          amount: 0,
+          currency: 'RWF',
+          period: 'one-time'
+        },
+        benefits: [
+          { title: 'Expert Guidance', description: 'Learn from experienced career counselors', icon: 'award' },
+          { title: 'Personalized Approach', description: 'Tailored advice for your unique situation', icon: 'user' },
+          { title: 'Ongoing Support', description: 'Continued assistance as you progress', icon: 'heart' }
+        ],
+        isActive: true,
+        isFeatured: true,
+        order: 1,
+        createdBy: adminUser._id
+      },
+      {
+        title: 'CV & Resume Writing',
+        slug: 'cv-resume-writing',
+        shortDescription: 'Professional CV creation and optimization services',
+        description: 'Stand out from the competition with a professionally crafted CV. We optimize your resume for ATS systems and tailor it to your industry.',
+        icon: 'file-text',
+        category: 'career',
+        features: [
+          { title: 'ATS Optimization', description: 'Ensure your CV passes automated screening', included: true },
+          { title: 'Industry Specific', description: 'Tailored to your target industry', included: true },
+          { title: 'Cover Letter', description: 'Compelling cover letter included', included: true }
+        ],
+        pricing: {
+          type: 'paid',
+          amount: 25000,
+          currency: 'RWF',
+          period: 'one-time'
+        },
+        benefits: [
+          { title: 'Professional Quality', description: 'Industry-standard formatting and content', icon: 'star' },
+          { title: 'Fast Turnaround', description: 'Delivered within 2-3 business days', icon: 'clock' },
+          { title: 'Revisions Included', description: 'Up to 2 rounds of revisions', icon: 'refresh-cw' }
+        ],
+        isActive: true,
+        isFeatured: true,
+        order: 2,
+        createdBy: adminUser._id
+      },
+      {
+        title: 'Interview Preparation',
+        slug: 'interview-preparation',
+        shortDescription: 'Mock interviews and comprehensive coaching sessions',
+        description: 'Ace your interviews with our comprehensive preparation service. Practice with mock interviews and receive expert feedback to boost your confidence.',
+        icon: 'message-square',
+        category: 'career',
+        features: [
+          { title: 'Mock Interview', description: 'Practice with realistic interview scenarios', included: true },
+          { title: 'Expert Feedback', description: 'Detailed analysis of your performance', included: true },
+          { title: 'Tips & Strategies', description: 'Proven techniques to impress interviewers', included: true }
+        ],
+        pricing: {
+          type: 'paid',
+          amount: 30000,
+          currency: 'RWF',
+          period: 'one-time'
+        },
+        benefits: [
+          { title: 'Build Confidence', description: 'Feel prepared and confident', icon: 'zap' },
+          { title: 'Industry Insights', description: 'Learn what employers are looking for', icon: 'lightbulb' },
+          { title: 'Personalized Coaching', description: 'One-on-one guidance and support', icon: 'users' }
+        ],
+        isActive: true,
+        isFeatured: true,
+        order: 3,
+        createdBy: adminUser._id
+      }
+    ]
+    await Service.insertMany(services)
+    console.log('🛠️  Created consulting services')
+
     console.log('\n🎉 Database seeding completed successfully!')
     console.log('\n📊 Summary:')
     console.log(`👤 Users: ${await User.countDocuments()}`)
     console.log(`🎓 Universities: ${await University.countDocuments()}`)
     console.log(`💼 Jobs: ${await Job.countDocuments()}`)
+    console.log(`🏠 Homepage Settings: ${await HomepageSettings.countDocuments()}`)
+    console.log(`🛠️  Services: ${await Service.countDocuments()}`)
     
     console.log('\n🔑 Login Credentials:')
     console.log('Admin: admin@edujobsconnect.rw / Admin123!')

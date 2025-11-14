@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, GraduationCap, Briefcase, Users } from 'lucide-react'
-import axios from 'axios'
+import api from '../../services/api'
 
 const HeroSection = () => {
   const [settings, setSettings] = useState(null)
@@ -13,7 +13,7 @@ const HeroSection = () => {
 
   const fetchSettings = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/homepage/content')
+      const response = await api.get('/homepage/content')
       setSettings(response.data.settings)
     } catch (error) {
       console.error('Failed to fetch homepage settings:', error)

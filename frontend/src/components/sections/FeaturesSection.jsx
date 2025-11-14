@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { GraduationCap, Briefcase, Users, Star, Award } from 'lucide-react'
-import axios from 'axios'
+import api from '../../services/api'
 
 const FeaturesSection = () => {
   const [features, setFeatures] = useState([])
@@ -12,8 +12,8 @@ const FeaturesSection = () => {
 
   const fetchFeatures = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/homepage/content')
-      const enabledFeatures = response.data.settings.features?.filter(f => f.enabled) || []
+      const response = await api.get('/homepage/content')
+      const enabledFeatures = response.data.settings?.features?.filter(f => f.enabled) || []
       setFeatures(enabledFeatures)
     } catch (error) {
       console.error('Failed to fetch features:', error)
